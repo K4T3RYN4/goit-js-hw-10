@@ -27,6 +27,7 @@ const options = {
                 position: 'topRight'
             });
         } else {
+            userSelectedDate = selectedDates[0];
             buttonEl.removeAttribute('disabled')
         }
     },
@@ -36,29 +37,26 @@ flatpickr('#datetime-picker', options);
 
 function startTimer() {
     if (!userSelectedDate) return;
+    buttonEl.setAttribute('disabled', true);
 
-    const intervalId = setInterval(() => {
-        const now = new Date();
-        const diff = userSelectedDate - now;
+    const timerId = setInterval(() => {
+        const diff = userSelectedDate - Date.now();
 
         if (diff <= 0) {
-            clearInterval(intervalId);
-            daysEl.textContent = '00';
-            hoursEl.textContent = '00';
-            minutesEl.textContent = '00';
-            secondsEl.textContent = '00';
+            clearInterval(timerId);
             return;
         }
 
-        const time = convertMs(diff);
-        daysEl.textContent = String(time.days).padStart(2, '0');
-        hoursEl.textContent = String(time.hours).padStart(2, '0');
-        minutesEl.textContent = String(time.minutes).padStart(2, '0');
-        secondsEl.textContent = String(time.seconds).padStart(2, '0');
+        const { days, hours, minutes, seconds } = convertMs(diff);
+
+        daysEl.textContent = addLeadingZero(String(days));
+        hoursEl.textContent = addLeadingZero(String(hours));
+        minutesEl.textContent = addLeadingZero(String(minutes));
+        secondsEl.textContent = addLeadingZero(String(seconds));
     }, 1000);
 }
 
-buttonEl.addEventListener('click', startTimer)
+buttonEl.addEventListener('click', startTimer);
 
 function convertMs(ms) {
     // Number of milliseconds per unit of time
@@ -79,3 +77,7 @@ function convertMs(ms) {
     return { days, hours, minutes, seconds };
 }
 
+
+function addLeadingZero(value) {
+    return value.padStart(2, '0');
+}
